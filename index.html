@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MC Maranatha</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #ffffff;
+    color: #000;
+}
+
+/* HEADER */
+.header {
+    background-color: rgb(255, 215, 0);
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.header img {
+    width: 140px;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    color: #da291c;
+    margin: 0;
+    letter-spacing: 3px;
+}
+
+/* BUTTONS */
+button {
+    background-color: #da291c;
+    color: rgb(255,215,0);
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:hover {
+    background-color: #b2221a;
+}
+
+/* MENU */
+.menu-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    padding: 40px;
+}
+
+.item {
+    background-color: #f8f8f8;
+    width: 280px;
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+h3 {
+    color: rgb(255,215,0);
+}
+
+/* BESTELLINGEN */
+#orders {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.order-item {
+    background: #f1f1f1;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 10px;
+}
+
+/* POPUP */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-box {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 300px;
+}
+
+.popup-box h3 {
+    color: #da291c;
+}
+
+.popup-confirm {
+    background-color: #da291c;
+    color: rgb(255,215,0);
+}
+
+.popup-cancel {
+    background-color: #ccc;
+    color: black;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <img src="logo.png" alt="Logo">
+    <h1>MC MARANATHA</h1>
+</div>
+
+<div class="menu-container">
+
+    <div class="item">
+        <h3>Basic Burger</h3>
+        <p>Mosterd, ui, kaas, burger</p>
+        <button onclick="placeOrder('Basic Burger')">Bestel</button>
+    </div>
+
+    <div class="item">
+        <h3>Vega Burger</h3>
+        <p>Sla, tomaat, vega burger</p>
+        <button onclick="placeOrder('Vega Burger')">Bestel</button>
+    </div>
+
+    <div class="item">
+        <h3>De Nuggies Tower</h3>
+        <p>Nuggies, nuggies, nuggies, patat</p>
+        <button onclick="placeOrder('De Nuggies Tower')">Bestel</button>
+    </div>
+
+</div>
+
+<h3 style="text-align:center;">Bestellingen binnen:</h3>
+<div id="orders"></div>
+
+<!-- POPUP -->
+<div id="confirmPopup" class="popup-overlay">
+    <div class="popup-box">
+        <h3>Bestelling bevestigen</h3>
+        <p id="popupText"></p>
+        <button class="popup-confirm" onclick="confirmOrder()">Bevestigen</button>
+        <button class="popup-cancel" onclick="closePopup()">Annuleren</button>
+    </div>
+</div>
+
+<script>
+// 🔥 VUL HIER JE EIGEN FIREBASE GEGEVENS IN
+const firebaseConfig = {
+  apiKey: "JOUW_API_KEY",
+  authDomain: "jouwdomein.firebaseapp.com",
+  databaseURL: "https://jouwdomein-default-rtdb.firebaseio.com",
+  projectId: "jouwdomein",
+  storageBucket: "jouwdomein.appspot.com",
+  messagingSenderId: "xxxx",
+  appId: "xxxx"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let selectedItem = "";
+
+// Popup openen
+function placeOrder(itemName) {
+    selectedItem = itemName;
+    document.getElementById("popupText").innerText =
+        "Weet je zeker dat je " + itemName + " wilt bestellen?";
+    document.getElementById("confirmPopup").style.display = "flex";
+}
+
+// Popup sluiten
+function closePopup() {
+    document.getElementById("confirmPopup").style.display = "none";
+}
+
+// Bestelling bevestigen
+function confirmOrder() {
+    const newOrder = {
+        item: selectedItem,
+        tijd: Date.now()
+    };
+
+    db.ref('orders').push(newOrder);
+    closePopup();
+}
+
+// Live bestellingen tonen
+db.ref('orders').on('child_added', (snapshot) => {
+    const data = snapshot.val();
+    const div = document.createElement('div');
+    div.className = 'order-item';
+    div.textContent = data.item + " - " +
+        new Date(data.tijd).toLocaleTimeString();
+    document.getElementById('orders').appendChild(div);
+});
+</script>
+
+</body>
+</html>
