@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MC Maranatha</title>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
@@ -96,11 +97,29 @@ button:hover {
 .popup-confirm {
     background: #da291c;
     color: rgb(255,215,0);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 5px;
 }
 
 .popup-cancel {
     background: #ccc;
     color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.popup-box input[type="text"] {
+    width: 90%;
+    padding: 8px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: 1px solid #ccc;
 }
 </style>
 </head>
@@ -150,6 +169,18 @@ button:hover {
 <button onclick="placeOrder('El Sylvano Grande')">Bestel</button>
 </div>
 
+<div class="item">
+<h3>Alfa Omega Burger</h3>
+<p>Kaas, Sla, Burger, Sla, Augurk, Burger, Kaas</p>
+<button onclick="placeOrder('Alfa Omega Burger')">Bestel</button>
+</div>
+
+<div class="item">
+<h3>The Power of de Nuggies Tower</h3>
+<p>Veel nuggets, patat, meer nuggets</p>
+<button onclick="placeOrder('The Power of de Nuggies Tower')">Bestel</button>
+</div>
+
 </div>
 
 <!-- POPUP -->
@@ -157,6 +188,8 @@ button:hover {
     <div class="popup-box">
         <h3>Bestelling bevestigen</h3>
         <p id="popupText"></p>
+        <input type="text" id="customerName" placeholder="Vul je naam in">
+        <br>
         <button class="popup-confirm" onclick="confirmOrder()">Bevestigen</button>
         <button class="popup-cancel" onclick="closePopup()">Annuleren</button>
     </div>
@@ -173,7 +206,6 @@ const firebaseConfig = {
   appId : "1:305909078179:web:165a92a8abb81ccb0a4716" 
 };
 
-
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -183,6 +215,7 @@ function placeOrder(itemName) {
     selectedItem = itemName;
     document.getElementById("popupText").innerText =
         "Weet je zeker dat je " + itemName + " wilt bestellen?";
+    document.getElementById("customerName").value = "";
     document.getElementById("confirmPopup").style.display = "flex";
 }
 
@@ -191,11 +224,16 @@ function closePopup() {
 }
 
 function confirmOrder() {
+    const name = document.getElementById("customerName").value.trim();
+    if(name === "") {
+        alert("Vul je naam in voordat je bestelt.");
+        return;
+    }
     const newOrder = {
         item: selectedItem,
-        tijd: Date.now()
+        tijd: Date.now(),
+        naam: name
     };
-
     db.ref("orders").push(newOrder);
     closePopup();
 }
@@ -203,4 +241,3 @@ function confirmOrder() {
 
 </body>
 </html>
-
