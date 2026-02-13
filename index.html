@@ -6,182 +6,45 @@
 <title>MC Maranatha</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #ffffff;
-}
-
-.header {
-    background: rgb(255,215,0);
-    text-align: center;
-    padding: 30px;
-}
-
-.header img {
-    width: 130px;
-}
-
-.header h1 {
-    color: #da291c;
-    margin-top: 10px;
-}
-
-.menu-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    padding: 40px;
-}
-
-.item {
-    background: #f5f5f5;
-    width: 300px;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.item h3 {
-    color: rgb(255,215,0);
-}
-
-button {
-    background: #da291c;
-    color: rgb(255,215,0);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-button:hover {
-    background: #b2221a;
-}
-
-/* POPUP */
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.popup-box {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    width: 350px;
-}
-
-.popup-box input, .popup-box select {
-    width: 90%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-select[multiple] {
-    height: 120px;
-}
+body {margin:0; font-family: Arial, Helvetica, sans-serif; background: #ffffff;}
+.header {background: rgb(255,215,0); text-align: center; padding: 30px;}
+.header img {width: 130px;}
+.header h1 {color: #da291c; margin-top:10px;}
+.menu-container {display:flex; flex-wrap:wrap; justify-content:center; gap:30px; padding:40px;}
+.item {background:#f5f5f5; width:300px; padding:20px; border-radius:20px; box-shadow:0 5px 15px rgba(0,0,0,0.1); text-align:center;}
+.item h3 {color: rgb(255,215,0);}
+button {background:#da291c; color: rgb(255,215,0); border:none; padding:10px 20px; border-radius:20px; cursor:pointer; margin-top:15px; font-weight:bold;}
+button:hover {background:#b2221a;}
+.popup-overlay {position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center;}
+.popup-box {background:white; padding:30px; border-radius:20px; text-align:center; width:350px;}
+.popup-box input, .popup-box select {width:90%; padding:8px; margin:10px 0; border-radius:10px; border:1px solid #ccc;}
+select[multiple] {height:120px;}
+.popup-box label {display:block; margin:5px 0;}
+#loginBtn {background:#39b54a; color:white; margin-bottom:20px;}
 </style>
 </head>
-
 <body>
 
 <div class="header">
-    <img src="logo.png" alt="Logo">
-    <h1>MC MARANATHA</h1>
+<img src="logo.png" alt="Logo">
+<h1>MC MARANATHA</h1>
+<button id="loginBtn" onclick="loginWithGoogle()">Login met Google</button>
+<div id="userInfo"></div>
 </div>
 
-<div class="menu-container">
-
-<!-- Bestaande burgers -->
-<div class="item">
-<h3>Vega Burger</h3>
-<p>Bun, Sla, Ui, Tomaat, Komkommer, Vega Burger, Rucola, Bun</p>
-<button onclick="placeOrder('Vega Burger')">Bestel</button>
+<div class="menu-container" id="menuContainer">
+<!-- burgers worden hier dynamisch toegevoegd -->
 </div>
 
-<div class="item">
-<h3>Basic Burger / BB</h3>
-<p>Mosterd, Gebakken uitjes, Kaas, Hamburger, Augurk, Tomaat, Sla, Mayo</p>
-<button onclick="placeOrder('Basic Burger / BB')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Diet Big Mac</h3>
-<p>Bun, saus, sla, hamburger, kaas, saus, sla, hamburger, kaas, augurk, bun</p>
-<button onclick="placeOrder('Diet Big Mac')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Big Marco</h3>
-<p>Augurk, big mac saus, sla, ui, cheddar, burger</p>
-<button onclick="placeOrder('Big Marco')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Fire of the Spirit Burger</h3>
-<p>Bun gebakken in chili olie, burger, jalapeño, sriracha saus, plakjes gebakken knoflook, gefrituurde ui</p>
-<button onclick="placeOrder('Fire of the Spirit Burger')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>El Sylvano Grande</h3>
-<p>Saus, Burger, Kaas, Augurk, Saus, Sla, Tomaat, Burger, Kaas</p>
-<button onclick="placeOrder('El Sylvano Grande')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Alfa Omega Burger</h3>
-<p>Kaas, Sla, Burger, Sla, Augurk, Burger, Kaas</p>
-<button onclick="placeOrder('Alfa Omega Burger')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>The Power of de Nuggies Tower</h3>
-<p>Veel nuggets, aardappelkroketjes, meer nuggets</p>
-<button onclick="placeOrder('The Power of de Nuggies Tower')">Bestel</button>
-</div>
-
-<!-- Nieuwe burgers -->
-<div class="item">
-<h3>CCC (Christian Crispy Chicken)</h3>
-<p>Saus (max 3 keuzes), Kaas, Kipburger, Kaas, Kipburger, Crispy Ui, Sla, Saus</p>
-<button onclick="placeOrder('CCC (Christian Crispy Chicken)')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>McMinion</h3>
-<p>Pita broodje met gloeiworm (serieus lekker)</p>
-<button onclick="placeOrder('McMinion')">Bestel</button>
-</div>
-
-</div>
-
-<!-- Popup -->
+<!-- Eerste popup: naam + saus -->
 <div id="confirmPopup" class="popup-overlay">
 <div class="popup-box">
 <h3>Bestelling bevestigen</h3>
 <p id="popupText"></p>
-
-<input type="text" id="customerName" placeholder="Vul je naam in">
-
 <select id="sauceChoice" multiple style="display:none;">
 <option value="Mayo">Mayo</option>
 <option value="Ketchup">Ketchup</option>
@@ -189,10 +52,22 @@ select[multiple] {
 <option value="Knofloofsaus">Knofloofsaus</option>
 <option value="Sriracha">Sriracha</option>
 </select>
-
 <br>
 <button onclick="confirmOrder()">Bevestigen</button>
 <button onclick="closePopup()">Annuleren</button>
+</div>
+</div>
+
+<!-- Tweede popup: sides -->
+<div id="sidesPopup" class="popup-overlay">
+<div class="popup-box">
+<h3>Wil je iets bij je burger?</h3>
+<p>Kies je sides (optioneel, max 2):</p>
+<label><input type="checkbox" value="Kipnuggets"> Kipnuggets</label>
+<label><input type="checkbox" value="Aardappelkroketjes"> Aardappelkroketjes</label>
+<br>
+<button onclick="confirmSides()">Bevestigen</button>
+<button onclick="skipSides()">Nee, dank je</button>
 </div>
 </div>
 
@@ -208,61 +83,101 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const db = firebase.database();
 
 let selectedItem = "";
+let tempOrder = null;
+let currentUser = null;
 
-function placeOrder(itemName) {
-    selectedItem = itemName;
+// Burgers data
+const burgers = [
+{ name:"Vega Burger", desc:"Bun, Sla, Ui, Tomaat, Komkommer, Vega Burger, Rucola, Bun"},
+{ name:"Basic Burger / BB", desc:"Mosterd, Gebakken uitjes, Kaas, Hamburger, Augurk, Tomaat, Sla, Mayo"},
+{ name:"Diet Big Mac", desc:"Bun, saus, sla, hamburger, kaas, saus, sla, hamburger, kaas, augurk, bun"},
+{ name:"Big Marco", desc:"Augurk, big mac saus, sla, ui, cheddar, burger"},
+{ name:"Fire of the Spirit Burger", desc:"Bun gebakken in chili olie, burger, jalapeño, sriracha saus, plakjes gebakken knoflook, gefrituurde ui"},
+{ name:"El Sylvano Grande", desc:"Saus, Burger, Kaas, Augurk, Saus, Sla, Tomaat, Burger, Kaas"},
+{ name:"Alfa Omega Burger", desc:"Kaas, Sla, Burger, Sla, Augurk, Burger, Kaas"},
+{ name:"The Power of de Nuggies Tower", desc:"Veel nuggets, aardappelkroketjes, meer nuggets"},
+{ name:"CCC (Christian Crispy Chicken)", desc:"Saus (max 3 keuzes), Kaas, Kipburger, Kaas, Kipburger, Crispy Ui, Sla, Saus"},
+{ name:"McMinion", desc:"Pita broodje met gloeiworm (serieus lekker)"}
+];
 
-    document.getElementById("popupText").innerText =
-        "Weet je zeker dat je " + itemName + " wilt bestellen?";
-
-    document.getElementById("customerName").value = "";
-    document.getElementById("sauceChoice").value = "";
-
-    if(itemName === "CCC (Christian Crispy Chicken)") {
-        document.getElementById("sauceChoice").style.display = "block";
-    } else {
-        document.getElementById("sauceChoice").style.display = "none";
-    }
-
-    document.getElementById("confirmPopup").style.display = "flex";
+// Render burgers
+function renderMenu(){
+    const container = document.getElementById("menuContainer");
+    container.innerHTML = "";
+    burgers.forEach(b => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `<h3>${b.name}</h3><p>${b.desc}</p><button onclick="placeOrder('${b.name}')">Bestel</button>`;
+        container.appendChild(div);
+    });
 }
 
-function closePopup() {
-    document.getElementById("confirmPopup").style.display = "none";
+// Auth
+function loginWithGoogle(){
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider).then((result)=>{
+        currentUser = result.user;
+        document.getElementById("userInfo").innerText = "Ingelogd als: "+currentUser.displayName;
+        document.getElementById("loginBtn").style.display = "none";
+        renderMenu();
+    });
 }
 
-function confirmOrder() {
-    const name = document.getElementById("customerName").value.trim();
+// Bestelling
+function placeOrder(itemName){
+    if(!currentUser){ alert("Login eerst om te bestellen."); return; }
+
+    // Check aantal bestellingen van deze user
+    db.ref("orders").orderByChild("uid").equalTo(currentUser.uid).once("value", snapshot=>{
+        const count = snapshot.numChildren();
+        if(count >= 2){ alert("Je kunt maximaal 2 bestellingen plaatsen."); return; }
+
+        selectedItem = itemName;
+        document.getElementById("popupText").innerText = "Weet je zeker dat je "+itemName+" wilt bestellen?";
+        const sauceSelect = document.getElementById("sauceChoice");
+        sauceSelect.value = "";
+        sauceSelect.style.display = itemName==="CCC (Christian Crispy Chicken)"?"block":"none";
+        document.getElementById("confirmPopup").style.display="flex";
+    });
+}
+
+function closePopup(){ document.getElementById("confirmPopup").style.display="none"; }
+
+function confirmOrder(){
     const sauceSelect = document.getElementById("sauceChoice");
-    let sauces = Array.from(sauceSelect.selectedOptions).map(o => o.value);
+    let sauces = Array.from(sauceSelect.selectedOptions).map(o=>o.value);
+    if(selectedItem==="CCC (Christian Crispy Chicken)" && sauces.length===0){ alert("Kies minstens 1 saus."); return; }
+    if(sauces.length>3){ alert("Max 3 sauzen."); return; }
 
-    if(name === "") {
-        alert("Vul je naam in voordat je bestelt.");
-        return;
-    }
-
-    if(selectedItem === "CCC (Christian Crispy Chicken)" && sauces.length === 0) {
-        alert("Kies minstens 1 saus.");
-        return;
-    }
-
-    if(sauces.length > 3) {
-        alert("Je mag maximaal 3 sauzen kiezen.");
-        return;
-    }
-
-    const newOrder = {
-        item: selectedItem,
-        tijd: Date.now(),
-        naam: name,
-        saus: sauces.length > 0 ? sauces : null
+    tempOrder = {
+        item:selectedItem,
+        tijd:Date.now(),
+        uid: currentUser.uid,
+        naam: currentUser.displayName,
+        saus: sauces.length>0?sauces:null,
+        sides:[]
     };
-
-    db.ref("orders").push(newOrder);
     closePopup();
+    document.getElementById("sidesPopup").style.display="flex";
+}
+
+function confirmSides(){
+    const checkboxes = document.querySelectorAll("#sidesPopup input[type=checkbox]:checked");
+    if(checkboxes.length>2){ alert("Max 2 sides."); return; }
+    tempOrder.sides = Array.from(checkboxes).map(c=>c.value);
+    db.ref("orders").push(tempOrder);
+    tempOrder=null;
+    document.getElementById("sidesPopup").style.display="none";
+}
+
+function skipSides(){
+    db.ref("orders").push(tempOrder);
+    tempOrder=null;
+    document.getElementById("sidesPopup").style.display="none";
 }
 </script>
 
