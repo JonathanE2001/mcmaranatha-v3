@@ -1,217 +1,7 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MC Maranatha</title>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<style>
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #ffffff;
-}
-
-.header {
-    background: rgb(255,215,0);
-    text-align: center;
-    padding: 30px;
-}
-
-.header img {
-    width: 130px;
-}
-
-.header h1 {
-    color: #da291c;
-    margin-top: 10px;
-}
-
-.menu-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    padding: 40px;
-}
-
-.item {
-    background: #f5f5f5;
-    width: 300px;
-    padding: 20px;
-    border-radius: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.item h3 {
-    color: rgb(255,215,0);
-}
-
-button {
-    background: #da291c;
-    color: rgb(255,215,0);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    cursor: pointer;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-button:hover {
-    background: #b2221a;
-}
-
-/* POPUPS */
-
-.popup-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.popup-box {
-    background: white;
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    width: 350px;
-}
-
-.popup-box input, .popup-box select {
-    width: 90%;
-    padding: 8px;
-    margin: 10px 0;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-select[multiple] {
-    height: 120px;
-}
-
-.popup-box label {
-    display: block;
-    margin: 5px 0;
-}
-</style>
-</head>
-
-<body>
-
-<div class="header">
-    <img src="logo.png" alt="Logo">
-    <h1>MC MARANATHA</h1>
-</div>
-
-<div class="menu-container">
-
-<!-- Burgers -->
-
-<div class="item">
-<h3>Vega Burger</h3>
-<button onclick="placeOrder('Vega Burger')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Basic Burger / BB</h3>
-<button onclick="placeOrder('Basic Burger / BB')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Diet Big Mac</h3>
-<button onclick="placeOrder('Diet Big Mac')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Big Marco</h3>
-<button onclick="placeOrder('Big Marco')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Fire of the Spirit Burger</h3>
-<button onclick="placeOrder('Fire of the Spirit Burger')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>El Sylvano Grande</h3>
-<button onclick="placeOrder('El Sylvano Grande')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>Alfa Omega Burger</h3>
-<button onclick="placeOrder('Alfa Omega Burger')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>The Power of de Nuggies Tower</h3>
-<button onclick="placeOrder('The Power of de Nuggies Tower')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>CCC (Christian Crispy Chicken)</h3>
-<button onclick="placeOrder('CCC (Christian Crispy Chicken)')">Bestel</button>
-</div>
-
-<div class="item">
-<h3>McMinion</h3>
-<button onclick="placeOrder('McMinion')">Bestel</button>
-</div>
-
-</div>
-
-<!-- Eerste popup -->
-
-<div id="confirmPopup" class="popup-overlay">
-<div class="popup-box">
-
-<h3>Bestelling bevestigen</h3>
-<p id="popupText"></p>
-
-<input type="text" id="customerName" placeholder="Vul je naam in">
-
-<select id="sauceChoice" multiple style="display:none;">
-<option value="Mayo">Mayo</option>
-<option value="Ketchup">Ketchup</option>
-<option value="Curry">Curry</option>
-<option value="Knoflooksaus">Knoflooksaus</option>
-<option value="Sriracha">Sriracha</option>
-</select>
-
-<button onclick="confirmOrder()">Bevestigen</button>
-<button onclick="closePopup()">Annuleren</button>
-
-</div>
-</div>
-
-<!-- Tweede popup -->
-
-<div id="sidesPopup" class="popup-overlay">
-<div class="popup-box">
-
-<h3>Wil je iets bij je burger?</h3>
-<p>Maximaal 2 sides</p>
-
-<label><input type="checkbox" value="Kipnuggets"> Kipnuggets</label>
-<label><input type="checkbox" value="Aardappelkroketjes"> Aardappelkroketjes</label>
-
-<button onclick="confirmSides()">Bevestigen</button>
-<button onclick="skipSides()">Overslaan</button>
-
-</div>
-</div>
-
-<script>
 const firebaseConfig = { 
   apiKey : "AIzaSyA--6-0cX6qPdUwV0NllkgtAhpm2_SDdJ4" , 
   authDomain : "mcmaranatha-9b500.firebaseapp.com" , 
@@ -222,91 +12,152 @@ const firebaseConfig = {
   appId : "1:305909078179:web:165a92a8abb81ccb0a4716" 
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-let selectedItem = "";
-let tempOrder = null;
+let gekozenBurger = null;
+let gekozenSauzen = [];
+let gekozenSide = null;
 
-function placeOrder(itemName) {
-    selectedItem = itemName;
-    document.getElementById("popupText").innerText =
-        "Weet je zeker dat je " + itemName + " wilt bestellen?";
+const menu = [
+  {
+    naam: "Vega Burger",
+    beschrijving: "Bun, Sla, Ui, Tomaat, Komkommer, Vega Burger, Rucola, Bun"
+  },
+  {
+    naam: "Basic Burger / BB",
+    beschrijving: "Mosterd, Gebakken uitjes, Kaas, Hamburger, Augurk, Tomaat, Sla, Mayo"
+  },
+  {
+    naam: "Diet Big Mac",
+    beschrijving: "Bun, saus, sla, hamburger, kaas, saus, sla, hamburger, kaas, augurk, bun"
+  },
+  {
+    naam: "Big Marco",
+    beschrijving: "Augurk, Big Mac saus, sla, ui, cheddar, burger"
+  },
+  {
+    naam: "Fire of the Spirit Burger",
+    beschrijving: "Bun gebakken in chili olie, burger, jalapeño, sriracha saus, gebakken knoflook, gefrituurde ui"
+  },
+  {
+    naam: "El Sylvano Grande",
+    beschrijving: "Saus, Burger, Kaas, Augurk, Saus, Sla, Tomaat, Burger, Kaas"
+  },
+  {
+    naam: "Alfa Omega Burger",
+    beschrijving: "Kaas, Sla, Burger, Sla, Augurk, Burger, Kaas"
+  },
+  {
+    naam: "Power of the Nuggies Tower",
+    beschrijving: "Veel nuggets, patat, meer nuggets"
+  },
+  {
+    naam: "CCC (Christian Crispy Chicken)",
+    beschrijving: "Saus (naar keuze), Kaas, Kipburger, Kaas, Kipburger, Crispy Ui, Sla, Saus (naar keuze)",
+    ccc: true
+  },
+  {
+    naam: "McMinion",
+    beschrijving: "Pita broodje met gloeiworm (serieus lekker)"
+  }
+];
 
-    document.getElementById("customerName").value = "";
+const menuContainer = document.getElementById("menu");
 
-    if(itemName === "CCC (Christian Crispy Chicken)") {
-        document.getElementById("sauceChoice").style.display = "block";
-    } else {
-        document.getElementById("sauceChoice").style.display = "none";
-    }
+menu.forEach(burger => {
+  const div = document.createElement("div");
+  div.innerHTML = `
+    <h3>${burger.naam}</h3>
+    <p>${burger.beschrijving}</p>
+    <button>Bestel</button>
+    <hr>
+  `;
+  div.querySelector("button").onclick = () => startBestelling(burger);
+  menuContainer.appendChild(div);
+});
 
-    document.getElementById("confirmPopup").style.display = "flex";
+function startBestelling(burger) {
+  gekozenBurger = burger;
+  gekozenSauzen = [];
+  gekozenSide = null;
+
+  if (burger.ccc) {
+    toonSausKeuze();
+  } else {
+    toonSideKeuze();
+  }
 }
 
-function closePopup() {
-    document.getElementById("confirmPopup").style.display = "none";
-}
+function toonSausKeuze() {
+  const popup = document.createElement("div");
+  popup.innerHTML = `
+    <h2>Kies max 3 sauzen</h2>
+    <form id="sausForm">
+      <label><input type="checkbox" value="Mayo"> Mayo</label><br>
+      <label><input type="checkbox" value="Ketchup"> Ketchup</label><br>
+      <label><input type="checkbox" value="Curry"> Curry</label><br>
+      <label><input type="checkbox" value="Knoflooksaus"> Knoflooksaus</label><br>
+      <label><input type="checkbox" value="Sriracha"> Sriracha</label><br><br>
+      <button type="submit">Verder</button>
+    </form>
+  `;
+  document.body.appendChild(popup);
 
-function confirmOrder() {
+  document.getElementById("sausForm").onsubmit = function(e) {
+    e.preventDefault();
+    const checked = [...this.querySelectorAll("input:checked")];
 
-    const name = document.getElementById("customerName").value.trim();
-    const sauceSelect = document.getElementById("sauceChoice");
-    const sauces = Array.from(sauceSelect.selectedOptions).map(o => o.value);
-
-    if(name.length < 2) {
-        alert("Vul een geldige naam in.");
-        return;
+    if (checked.length > 3) {
+      alert("Maximaal 3 sauzen kiezen");
+      return;
     }
 
-    if(selectedItem === "CCC (Christian Crispy Chicken)") {
-        if(sauces.length === 0) {
-            alert("Kies minimaal 1 saus.");
-            return;
-        }
-        if(sauces.length > 3) {
-            alert("Maximaal 3 sauzen.");
-            return;
-        }
-    }
-
-    tempOrder = {
-        item: selectedItem,
-        naam: name,
-        tijd: Date.now(),
-        saus: sauces.length > 0 ? sauces : null,
-        sides: []
-    };
-
-    closePopup();
-    document.getElementById("sidesPopup").style.display = "flex";
+    gekozenSauzen = checked.map(c => c.value);
+    popup.remove();
+    toonSideKeuze();
+  };
 }
 
-function confirmSides() {
-
-    const checkboxes = document.querySelectorAll("#sidesPopup input[type=checkbox]:checked");
-
-    if(checkboxes.length > 2) {
-        alert("Maximaal 2 sides.");
-        return;
-    }
-
-    tempOrder.sides = Array.from(checkboxes).map(c => c.value);
-
-    db.ref("orders").push(tempOrder);
-
-    tempOrder = null;
-    document.getElementById("sidesPopup").style.display = "none";
+function toonSideKeuze() {
+  const popup = document.createElement("div");
+  popup.innerHTML = `
+    <h2>Wil je er iets bij?</h2>
+    <button onclick="kiesSide('Geen')">Nee</button>
+    <button onclick="kiesSide('Aardappelkroketjes')">Aardappelkroketjes</button>
+    <button onclick="kiesSide('Kipnuggets')">Kipnuggets</button>
+  `;
+  document.body.appendChild(popup);
 }
 
-function skipSides() {
+window.kiesSide = function(side) {
+  gekozenSide = side;
+  document.querySelectorAll("div").forEach(d => {
+    if (d.innerHTML.includes("Wil je er iets bij?")) d.remove();
+  });
+  vraagNaam();
+}
 
-    db.ref("orders").push(tempOrder);
+function vraagNaam() {
+  const naam = prompt("Vul je naam in:");
+  if (!naam || naam.trim() === "") {
+    alert("Naam is verplicht");
+    return vraagNaam();
+  }
 
-    tempOrder = null;
-    document.getElementById("sidesPopup").style.display = "none";
+  bestellingOpslaan(naam.trim());
+}
+
+function bestellingOpslaan(naam) {
+  push(ref(db, "bestellingen"), {
+    naam: naam,
+    burger: gekozenBurger.naam,
+    beschrijving: gekozenBurger.beschrijving,
+    sauzen: gekozenSauzen,
+    side: gekozenSide,
+    tijd: Date.now()
+  });
+
+  alert("Bestelling geplaatst!");
 }
 </script>
-
-</body>
-</html>
