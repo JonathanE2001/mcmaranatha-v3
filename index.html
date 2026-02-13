@@ -66,7 +66,8 @@ button:hover {
     background: #b2221a;
 }
 
-/* POPUP */
+/* POPUPS */
+
 .popup-overlay {
     position: fixed;
     top: 0;
@@ -98,6 +99,11 @@ button:hover {
 select[multiple] {
     height: 120px;
 }
+
+.popup-box label {
+    display: block;
+    margin: 5px 0;
+}
 </style>
 </head>
 
@@ -110,73 +116,65 @@ select[multiple] {
 
 <div class="menu-container">
 
-<!-- Bestaande burgers -->
+<!-- Burgers -->
+
 <div class="item">
 <h3>Vega Burger</h3>
-<p>Bun, Sla, Ui, Tomaat, Komkommer, Vega Burger, Rucola, Bun</p>
 <button onclick="placeOrder('Vega Burger')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>Basic Burger / BB</h3>
-<p>Mosterd, Gebakken uitjes, Kaas, Hamburger, Augurk, Tomaat, Sla, Mayo</p>
 <button onclick="placeOrder('Basic Burger / BB')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>Diet Big Mac</h3>
-<p>Bun, saus, sla, hamburger, kaas, saus, sla, hamburger, kaas, augurk, bun</p>
 <button onclick="placeOrder('Diet Big Mac')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>Big Marco</h3>
-<p>Augurk, big mac saus, sla, ui, cheddar, burger</p>
 <button onclick="placeOrder('Big Marco')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>Fire of the Spirit Burger</h3>
-<p>Bun gebakken in chili olie, burger, jalapeño, sriracha saus, plakjes gebakken knoflook, gefrituurde ui</p>
 <button onclick="placeOrder('Fire of the Spirit Burger')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>El Sylvano Grande</h3>
-<p>Saus, Burger, Kaas, Augurk, Saus, Sla, Tomaat, Burger, Kaas</p>
 <button onclick="placeOrder('El Sylvano Grande')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>Alfa Omega Burger</h3>
-<p>Kaas, Sla, Burger, Sla, Augurk, Burger, Kaas</p>
 <button onclick="placeOrder('Alfa Omega Burger')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>The Power of de Nuggies Tower</h3>
-<p>Veel nuggets, aardappelkroketjes, meer nuggets</p>
 <button onclick="placeOrder('The Power of de Nuggies Tower')">Bestel</button>
 </div>
 
-<!-- Nieuwe burgers -->
 <div class="item">
 <h3>CCC (Christian Crispy Chicken)</h3>
-<p>Saus (max 3 keuzes), Kaas, Kipburger, Kaas, Kipburger, Crispy Ui, Sla, Saus</p>
 <button onclick="placeOrder('CCC (Christian Crispy Chicken)')">Bestel</button>
 </div>
 
 <div class="item">
 <h3>McMinion</h3>
-<p>Pita broodje met gloeiworm (serieus lekker)</p>
 <button onclick="placeOrder('McMinion')">Bestel</button>
 </div>
 
 </div>
 
-<!-- Popup -->
+<!-- Eerste popup -->
+
 <div id="confirmPopup" class="popup-overlay">
 <div class="popup-box">
+
 <h3>Bestelling bevestigen</h3>
 <p id="popupText"></p>
 
@@ -186,13 +184,30 @@ select[multiple] {
 <option value="Mayo">Mayo</option>
 <option value="Ketchup">Ketchup</option>
 <option value="Curry">Curry</option>
-<option value="Knofloofsaus">Knofloofsaus</option>
+<option value="Knoflooksaus">Knoflooksaus</option>
 <option value="Sriracha">Sriracha</option>
 </select>
 
-<br>
 <button onclick="confirmOrder()">Bevestigen</button>
 <button onclick="closePopup()">Annuleren</button>
+
+</div>
+</div>
+
+<!-- Tweede popup -->
+
+<div id="sidesPopup" class="popup-overlay">
+<div class="popup-box">
+
+<h3>Wil je iets bij je burger?</h3>
+<p>Maximaal 2 sides</p>
+
+<label><input type="checkbox" value="Kipnuggets"> Kipnuggets</label>
+<label><input type="checkbox" value="Aardappelkroketjes"> Aardappelkroketjes</label>
+
+<button onclick="confirmSides()">Bevestigen</button>
+<button onclick="skipSides()">Overslaan</button>
+
 </div>
 </div>
 
@@ -211,15 +226,14 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 let selectedItem = "";
+let tempOrder = null;
 
 function placeOrder(itemName) {
     selectedItem = itemName;
-
     document.getElementById("popupText").innerText =
         "Weet je zeker dat je " + itemName + " wilt bestellen?";
 
     document.getElementById("customerName").value = "";
-    document.getElementById("sauceChoice").value = "";
 
     if(itemName === "CCC (Christian Crispy Chicken)") {
         document.getElementById("sauceChoice").style.display = "block";
@@ -235,34 +249,62 @@ function closePopup() {
 }
 
 function confirmOrder() {
+
     const name = document.getElementById("customerName").value.trim();
     const sauceSelect = document.getElementById("sauceChoice");
-    let sauces = Array.from(sauceSelect.selectedOptions).map(o => o.value);
+    const sauces = Array.from(sauceSelect.selectedOptions).map(o => o.value);
 
-    if(name === "") {
-        alert("Vul je naam in voordat je bestelt.");
+    if(name.length < 2) {
+        alert("Vul een geldige naam in.");
         return;
     }
 
-    if(selectedItem === "CCC (Christian Crispy Chicken)" && sauces.length === 0) {
-        alert("Kies minstens 1 saus.");
-        return;
+    if(selectedItem === "CCC (Christian Crispy Chicken)") {
+        if(sauces.length === 0) {
+            alert("Kies minimaal 1 saus.");
+            return;
+        }
+        if(sauces.length > 3) {
+            alert("Maximaal 3 sauzen.");
+            return;
+        }
     }
 
-    if(sauces.length > 3) {
-        alert("Je mag maximaal 3 sauzen kiezen.");
-        return;
-    }
-
-    const newOrder = {
+    tempOrder = {
         item: selectedItem,
-        tijd: Date.now(),
         naam: name,
-        saus: sauces.length > 0 ? sauces : null
+        tijd: Date.now(),
+        saus: sauces.length > 0 ? sauces : null,
+        sides: []
     };
 
-    db.ref("orders").push(newOrder);
     closePopup();
+    document.getElementById("sidesPopup").style.display = "flex";
+}
+
+function confirmSides() {
+
+    const checkboxes = document.querySelectorAll("#sidesPopup input[type=checkbox]:checked");
+
+    if(checkboxes.length > 2) {
+        alert("Maximaal 2 sides.");
+        return;
+    }
+
+    tempOrder.sides = Array.from(checkboxes).map(c => c.value);
+
+    db.ref("orders").push(tempOrder);
+
+    tempOrder = null;
+    document.getElementById("sidesPopup").style.display = "none";
+}
+
+function skipSides() {
+
+    db.ref("orders").push(tempOrder);
+
+    tempOrder = null;
+    document.getElementById("sidesPopup").style.display = "none";
 }
 </script>
 
